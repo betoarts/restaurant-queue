@@ -105,6 +105,20 @@ npm run dev
 Acesse pelo navegador em `http://localhost:3000`.
 Para a versão móvel (garçons no salão), acesse `http://SEU_IP_NA_REDE:3000/mobile` pelo celular.
 
+### Windows & Linux (Inicialização Rápida)
+
+Você pode iniciar toda a aplicação (backend + frontend em paralelo, e com instalação automática das dependências caso não existam) usando os scripts da pasta raiz:
+
+#### Windows
+- Dê dois cliques no arquivo `run_windows.bat`.
+
+#### Linux
+- Execute o script no terminal:
+  ```bash
+  ./run_linux.sh
+  ```
+  *(O script gerencia os processos em segundo plano de forma limpa. Pressione `Ctrl + C` para encerrar ambos os servidores de uma só vez).*
+
 ---
 
 ## 📡 API REST — 21 Endpoints
