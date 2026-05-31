@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #0f0f13;
+  color: #f0f0f5;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #26262f; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a48; }
+
+/* Light mode overrides */
+html.light body {
+  background: #f2f2f7;
+  color: #1a1a2e;
+}
+html.light .bg-bg-1 { background: #f2f2f7; }
+html.light .bg-bg-2 { background: #ffffff; }
+html.light .bg-bg-3 { background: #f5f5f9; }
+html.light .bg-bg-4 { background: #eaeaef; }
+html.light .card {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.06);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+html.light .input {
+  background: #f5f5f9;
+  border-color: rgba(0,0,0,0.08);
+  color: #1a1a2e;
+}
+html.light .input::placeholder { color: rgba(0,0,0,0.3); }
+html.light .input:focus { border-color: rgba(0,217,126,0.4); }
+html.light .btn-ghost {
+  background: #f5f5f9;
+  border-color: rgba(0,0,0,0.08);
+  color: #1a1a2e;
+}
+html.light .btn-ghost:hover { background: #eaeaef; border-color: rgba(0,0,0,0.15); }
+html.light .nav-sidebar { background: #ffffff; border-color: rgba(0,0,0,0.06); }
+html.light .topbar { background: #ffffff; border-color: rgba(0,0,0,0.06); }
+html.light .panel-right { background: #ffffff; border-color: rgba(0,0,0,0.06); }
+html.light .status-badge { color: inherit; }
+
+/* Tailwind white opacity overrides for light theme */
+html.light .text-white { color: #1a1a2e !important; }
+html.light .text-white\/20 { color: rgba(26, 26, 46, 0.4) !important; }
+html.light .text-white\/25 { color: rgba(26, 26, 46, 0.45) !important; }
+html.light .text-white\/30 { color: rgba(26, 26, 46, 0.5) !important; }
+html.light .text-white\/40 { color: rgba(26, 26, 46, 0.6) !important; }
+html.light .text-white\/50 { color: rgba(26, 26, 46, 0.7) !important; }
+html.light .text-white\/60 { color: rgba(26, 26, 46, 0.8) !important; }
+html.light .text-white\/80 { color: rgba(26, 26, 46, 0.9) !important; }
+
+html.light .border-white\/\[0\.05\] { border-color: rgba(0, 0, 0, 0.08) !important; }
+html.light .border-white\/\[0\.07\] { border-color: rgba(0, 0, 0, 0.1) !important; }
+html.light .border-white\/\[0\.1\] { border-color: rgba(0, 0, 0, 0.12) !important; }
+html.light .border-white\/\[0\.12\] { border-color: rgba(0, 0, 0, 0.15) !important; }
+html.light .border-white\/\[0\.15\] { border-color: rgba(0, 0, 0, 0.2) !important; }
+html.light .border-white\/\[0\.2\] { border-color: rgba(0, 0, 0, 0.25) !important; }
+
+html.light .bg-white\/\[0\.02\] { background-color: rgba(0, 0, 0, 0.03) !important; }
+html.light .bg-white\/\[0\.05\] { background-color: rgba(0, 0, 0, 0.06) !important; }
+html.light .bg-white\/\[0\.07\] { background-color: rgba(0, 0, 0, 0.08) !important; }
+html.light .bg-white\/\[0\.1\] { background-color: rgba(0, 0, 0, 0.1) !important; }
+
+@layer components {
+  .card {
+    @apply bg-bg-2 border border-white/[0.07] rounded-xl;
+  }
+  .btn-primary {
+    @apply bg-accent text-bg-1 font-medium px-4 py-2 rounded-lg hover:bg-accent-dark transition-colors text-sm;
+  }
+  .btn-ghost {
+    @apply bg-bg-3 border border-white/[0.07] text-white px-3 py-1.5 rounded-lg hover:bg-bg-4 hover:border-white/[0.12] transition-all text-sm;
+  }
+  .input {
+    @apply bg-bg-3 border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-white placeholder-white/30
+           focus:outline-none focus:border-accent/60 transition-colors;
+  }
+  .status-badge {
+    @apply text-[10px] font-medium px-2 py-0.5 rounded-md;
+  }
+}
