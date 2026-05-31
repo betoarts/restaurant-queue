@@ -11,7 +11,7 @@ import (
 	"github.com/mdp/qrterminal"
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
-	"go.mau.fi/whatsmeow/events"
+	"go.mau.fi/whatsmeow/types/events"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	waLog "go.mau.fi/whatsmeow/util/log"
@@ -191,7 +191,7 @@ func (s *Service) Disconnect() {
 
 func (s *Service) Logout() error {
 	if s.client != nil {
-		err := s.client.Logout()
+		err := s.client.Logout(context.Background())
 		s.updateStatus("disconnected", "")
 		return err
 	}

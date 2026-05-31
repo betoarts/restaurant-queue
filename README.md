@@ -83,6 +83,15 @@ go build -o server .
 
 Servidor sobe em `http://localhost:8080`.
 
+> [!TIP]
+> **Atualizando o servidor ou porta 8080 ocupada:**
+> Se você atualizou o código do backend ou receber um erro de porta ocupada, libere a porta e reinicie:
+> ```bash
+> kill -9 $(lsof -t -i:8080) 2>/dev/null || fuser -k 8080/tcp 2>/dev/null
+> go build -o server .
+> ./server
+> ```
+
 Na primeira execução, um QR Code aparece no terminal e na aba **WhatsApp** do frontend (ao clicar em Conectar). Escaneie com o WhatsApp: **Configurações → Dispositivos conectados → Conectar dispositivo**. A sessão fica salva em `whatsapp.db`.
 
 ### Frontend
