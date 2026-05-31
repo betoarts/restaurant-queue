@@ -43,7 +43,6 @@ restaurant-queue/
 │       ├── components/
 │       │   ├── dashboard/DashboardStats.jsx  # Grid de 8 cards de métricas
 │       │   ├── history/HistoryView.jsx       # Histórico + relatório diário
-│       │   ├── qrcode/QRCodePanel.jsx        # Painel QR Code WhatsApp
 │       │   ├── queue/
 │       │   │   ├── QueuePanel.jsx            # Painel lateral da fila + formulário
 │       │   │   └── EditEntryModal.jsx        # Modal editar entrada da fila
@@ -54,7 +53,9 @@ restaurant-queue/
 │       │   │   ├── TableMap.jsx              # Mapa visual interativo de mesas
 │       │   │   ├── TableCrud.jsx             # CRUD de mesas (adicionar/editar/remover)
 │       │   │   └── TableEditModal.jsx        # Modal editar mesa
-│       │   └── whatsapp/NotifyModal.jsx      # Modal notificação WhatsApp
+│       │   └── whatsapp/
+│       │       ├── NotifyModal.jsx           # Modal notificação WhatsApp
+│       │       └── WhatsAppPanel.jsx         # Painel Gerenciador WhatsApp (QR Code + Ações)
 │       ├── pages/
 │       │   └── SettingsPage.jsx              # Página de configurações
 │       └── hooks/
@@ -82,7 +83,7 @@ go build -o server .
 
 Servidor sobe em `http://localhost:8080`.
 
-Na primeira execução, um QR Code aparece no terminal e na aba **QR Code** do frontend. Escaneie com o WhatsApp: **Configurações → Dispositivos conectados → Conectar dispositivo**. A sessão fica salva em `whatsapp.db`.
+Na primeira execução, um QR Code aparece no terminal e na aba **WhatsApp** do frontend (ao clicar em Conectar). Escaneie com o WhatsApp: **Configurações → Dispositivos conectados → Conectar dispositivo**. A sessão fica salva em `whatsapp.db`.
 
 ### Frontend
 
@@ -151,7 +152,9 @@ Para a versão móvel (garçons no salão), acesse `http://SEU_IP_NA_REDE:3000/m
 |--------|------|-----------|
 | GET | `/api/whatsapp/status` | Status da conexão |
 | GET | `/api/whatsapp/qr` | QR Code atual (`qr` + `status`) |
-| POST | `/api/whatsapp/disconnect` | Desconectar WhatsApp |
+| POST | `/api/whatsapp/connect` | Conectar WhatsApp / Gerar QR Code |
+| POST | `/api/whatsapp/disconnect` | Desconectar temporariamente o WhatsApp |
+| POST | `/api/whatsapp/logout` | Desvincular/Desparear dispositivo |
 
 ### Configurações
 
@@ -173,6 +176,7 @@ Conexão em `/ws`. Eventos enviados pelo servidor:
 | `table_updated` | `table` ou `{id, status}` ou `{deleted: id}` | Mesa alterada |
 | `notification_sent` | `{customer, table}` | WhatsApp enviado |
 | `suggest_call` | `{queue_entry, table_id}` | Mesa liberada → sugestão de próximo cliente |
+| `whatsapp_status` | `{status, qr}` | Mudança no status de conexão do WhatsApp ou novo QR Code gerado |
 
 ---
 

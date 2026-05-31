@@ -38,6 +38,8 @@ export const useStore = create((set, get) => ({
   // WhatsApp
   waStatus: 'disconnected',
   setWaStatus: (status) => set({ waStatus: status }),
+  waQR: '',
+  setWaQR: (qr) => set({ waQR: qr }),
 
   // Notify modal
   notifyModal: null,

@@ -20,11 +20,21 @@ func main() {
 
 	// Initialize WhatsApp service
 	waService := whatsapp.NewService()
-	go waService.Start()
 
 	// Initialize WebSocket hub
 	hub := websocket.NewHub()
 	go hub.Run()
+
+	// Set status change callback to broadcast over WebSocket
+	waService.OnStatusChange = func(status string, qr string) {
+		hub.Broadcast("whatsapp_status", map[string]interface{}{
+			"status": status,
+			"qr":     qr,
+		})
+	}
+
+	// Start WhatsApp service
+	go waService.Start()
 
 	// Setup Gin
 	r := gin.Default()

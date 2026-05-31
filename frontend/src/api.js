@@ -33,7 +33,9 @@ export const statsAPI = {
 export const waAPI = {
   status: () => api.get('/whatsapp/status').then(r => r.data),
   qr: () => api.get('/whatsapp/qr').then(r => r.data),
+  connect: () => api.post('/whatsapp/connect').then(r => r.data),
   disconnect: () => api.post('/whatsapp/disconnect').then(r => r.data),
+  logout: () => api.post('/whatsapp/logout').then(r => r.data),
 }
 
 export const historyAPI = {

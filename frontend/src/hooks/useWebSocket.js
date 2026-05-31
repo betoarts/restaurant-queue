@@ -4,7 +4,7 @@ import { useStore } from '../store'
 
 export function useWebSocket() {
   const ws = useRef(null)
-  const { setQueue, updateTable, setStats, updateQueueEntry } = useStore()
+  const { setQueue, updateTable, setStats, updateQueueEntry, setWaStatus, setWaQR } = useStore()
 
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -66,6 +66,11 @@ export function useWebSocket() {
           icon: '🍽️',
           duration: 6000,
         })
+        break
+
+      case 'whatsapp_status':
+        setWaStatus(payload.status)
+        setWaQR(payload.qr || '')
         break
 
       default:

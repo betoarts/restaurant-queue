@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Toaster } from 'react-hot-toast'
-import { LayoutDashboard, Users, Table2, MessageCircle, Settings, QrCode, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Users, Table2, MessageCircle, Settings, BarChart3 } from 'lucide-react'
 import { useStore } from './store'
 import { waAPI, settingsAPI } from './api'
 import { useWebSocket } from './hooks/useWebSocket'
@@ -10,7 +10,7 @@ import TableMap from './components/tables/TableMap'
 import QueuePanel from './components/queue/QueuePanel'
 import QueueListView from './components/queue/QueueListView'
 import NotifyModal from './components/whatsapp/NotifyModal'
-import QRCodePanel from './components/qrcode/QRCodePanel'
+import WhatsAppPanel from './components/whatsapp/WhatsAppPanel'
 import TableCrud from './components/tables/TableCrud'
 import TableEditModal from './components/tables/TableEditModal'
 import HistoryView from './components/history/HistoryView'
@@ -34,7 +34,6 @@ const NAV = [
   { id: 'queue', icon: Users, label: 'Fila' },
   { id: 'tables', icon: Table2, label: 'Mesas' },
   { id: 'whatsapp', icon: MessageCircle, label: 'WhatsApp' },
-  { id: 'qrcode', icon: QrCode, label: 'QR Code' },
   { id: 'history', icon: BarChart3, label: 'Historico' },
   { id: 'settings', icon: Settings, label: 'Configuracoes' },
 ]
@@ -134,19 +133,7 @@ function Inner() {
                 <TableMap />
               </div>
             )}
-            {activeTab === 'whatsapp' && (
-              <div className="card p-6 max-w-md">
-                <h2 className="text-lg font-semibold mb-2">Conexão WhatsApp</h2>
-                <p className="text-sm text-white/40 mb-4">
-                  Status: <span className={`font-medium ${waStatus === 'connected' ? 'text-emerald-400' : 'text-red-400'}`}>{waLabel}</span>
-                </p>
-                <p className="text-sm text-white/30">
-                  Para conectar, inicie o servidor Go — o QR Code sera exibido no terminal.
-                  Escaneie com o WhatsApp do celular → Dispositivos conectados → Conectar dispositivo.
-                </p>
-              </div>
-            )}
-            {activeTab === 'qrcode' && <QRCodePanel />}
+            {activeTab === 'whatsapp' && <WhatsAppPanel />}
             {activeTab === 'history' && <HistoryView />}
             {activeTab === 'tables' && <TableCrud />}
             {activeTab === 'settings' && <SettingsPage />}

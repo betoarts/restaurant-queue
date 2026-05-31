@@ -304,8 +304,24 @@ func Register(r *gin.Engine, hub *websocket.Hub, wa *whatsapp.Service) {
 		c.JSON(200, gin.H{"status": wa.GetStatus()})
 	})
 
+	api.POST("/whatsapp/connect", func(c *gin.Context) {
+		if err := wa.Connect(); err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"ok": true})
+	})
+
 	api.POST("/whatsapp/disconnect", func(c *gin.Context) {
 		wa.Disconnect()
+		c.JSON(200, gin.H{"ok": true})
+	})
+
+	api.POST("/whatsapp/logout", func(c *gin.Context) {
+		if err := wa.Logout(); err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(200, gin.H{"ok": true})
 	})
 

@@ -11,6 +11,7 @@ import (
 	"github.com/mdp/qrterminal"
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
+	"go.mau.fi/whatsmeow/events"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	waLog "go.mau.fi/whatsmeow/util/log"
@@ -20,10 +21,11 @@ import (
 )
 
 type Service struct {
-	client    *whatsmeow.Client
-	Status    string // connected, disconnected, connecting
-	QRChan    chan string
-	CurrentQR string
+	client         *whatsmeow.Client
+	Status         string // connected, disconnected, connecting
+	QRChan         chan string
+	CurrentQR      string
+	OnStatusChange func(status string, qr string)
 }
 
 func NewService() *Service {
@@ -33,33 +35,42 @@ func NewService() *Service {
 	}
 }
 
+func (s *Service) updateStatus(status string, qr string) {
+	s.Status = status
+	s.CurrentQR = qr
+	if s.OnStatusChange != nil {
+		s.OnStatusChange(status, qr)
+	}
+}
+
 func (s *Service) Start() {
-	s.Status = "connecting"
+	s.updateStatus("connecting", "")
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 
 	container, err := sqlstore.New(context.Background(), "sqlite3", "file:whatsapp.db?_foreign_keys=on", dbLog)
 	if err != nil {
 		log.Printf("WA DB error: %v", err)
-		s.Status = "disconnected"
+		s.updateStatus("disconnected", "")
 		return
 	}
 
 	deviceStore, err := container.GetFirstDevice(context.Background())
 	if err != nil {
 		log.Printf("WA device error: %v", err)
-		s.Status = "disconnected"
+		s.updateStatus("disconnected", "")
 		return
 	}
 
 	clientLog := waLog.Stdout("Client", "INFO", true)
 	s.client = whatsmeow.NewClient(deviceStore, clientLog)
+	s.client.AddEventHandler(s.handleWhatsAppEvent)
 
 	if s.client.Store.ID == nil {
 		// New login — show QR code
 		qrChan, _ := s.client.GetQRChannel(context.Background())
 		if err := s.client.Connect(); err != nil {
 			log.Printf("WA connect error: %v", err)
-			s.Status = "disconnected"
+			s.updateStatus("disconnected", "")
 			return
 		}
 		for evt := range qrChan {
@@ -71,9 +82,9 @@ func (s *Service) Start() {
 				case s.QRChan <- evt.Code:
 				default:
 				}
-				s.Status = "connecting"
+				s.updateStatus("connecting", evt.Code)
 			} else if evt.Event == "success" {
-				s.Status = "connected"
+				s.updateStatus("connected", "")
 				log.Println("✅ WhatsApp connected!")
 			}
 		}
@@ -81,10 +92,10 @@ func (s *Service) Start() {
 		// Already have session, reconnect
 		if err := s.client.Connect(); err != nil {
 			log.Printf("WA reconnect error: %v", err)
-			s.Status = "disconnected"
+			s.updateStatus("disconnected", "")
 			return
 		}
-		s.Status = "connected"
+		s.updateStatus("connected", "")
 		log.Println("✅ WhatsApp reconnected!")
 	}
 
@@ -165,16 +176,90 @@ func (s *Service) GetStatus() string {
 	if s.client == nil {
 		return "disconnected"
 	}
-	if s.client.IsConnected() {
+	if s.client.IsConnected() && s.client.Store.ID != nil {
 		return "connected"
 	}
-	return "disconnected"
+	return s.Status
 }
 
 func (s *Service) Disconnect() {
 	if s.client != nil {
 		s.client.Disconnect()
-		s.Status = "disconnected"
+		s.updateStatus("disconnected", "")
+	}
+}
+
+func (s *Service) Logout() error {
+	if s.client != nil {
+		err := s.client.Logout()
+		s.updateStatus("disconnected", "")
+		return err
+	}
+	return nil
+}
+
+func (s *Service) Connect() error {
+	if s.client == nil {
+		go s.Start()
+		return nil
+	}
+	if s.client.IsConnected() && s.client.Store.ID != nil {
+		return nil
+	}
+
+	s.updateStatus("connecting", "")
+
+	if s.client.Store.ID == nil {
+		go func() {
+			qrChan, err := s.client.GetQRChannel(context.Background())
+			if err != nil {
+				log.Printf("Failed to get QR channel: %v", err)
+				s.updateStatus("disconnected", "")
+				return
+			}
+			if err := s.client.Connect(); err != nil {
+				log.Printf("WA connect error: %v", err)
+				s.updateStatus("disconnected", "")
+				return
+			}
+			for evt := range qrChan {
+				if evt.Event == "code" {
+					qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+					select {
+					case s.QRChan <- evt.Code:
+					default:
+					}
+					s.updateStatus("connecting", evt.Code)
+				} else if evt.Event == "success" {
+					s.updateStatus("connected", "")
+					log.Println("✅ WhatsApp connected!")
+				}
+			}
+		}()
+	} else {
+		go func() {
+			if err := s.client.Connect(); err != nil {
+				log.Printf("WA reconnect error: %v", err)
+				s.updateStatus("disconnected", "")
+				return
+			}
+			s.updateStatus("connected", "")
+			log.Println("✅ WhatsApp reconnected!")
+		}()
+	}
+	return nil
+}
+
+func (s *Service) handleWhatsAppEvent(evt interface{}) {
+	switch evt.(type) {
+	case *events.Connected:
+		if s.client.Store.ID != nil {
+			s.updateStatus("connected", "")
+		}
+	case *events.Disconnected:
+		s.updateStatus("disconnected", "")
+	case *events.LoggedOut:
+		s.updateStatus("disconnected", "")
 	}
 }
 
